@@ -57,8 +57,13 @@ def HEADER(date):
 """
 
 
-def FOOTER():
-    return """
+def FOOTER(utotal,ctotal):
+    return f"""
+    <tr>
+        <th>TOTALS</th>
+        <th>{utotal} kWh</th>
+        <th>$ {ctotal}</th>
+    <tr>
     </table>
 </body>
 </html>

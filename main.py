@@ -8,7 +8,7 @@ from time import sleep
 from matplotlib import pyplot as plt
 import html_css_formatter as html_format
 
-def format_data(usage,charge):
+def format_data(usage,charge,utotal,ctotal):
     data = html_format.HEADER(
         f"{date.today() - timedelta(days = 1)}"
         )
@@ -25,7 +25,7 @@ def format_data(usage,charge):
             <td>{u}</td>
             <td>{c}</td>
         </tr>"""
-    data += html_format.FOOTER()
+    data += html_format.FOOTER(f"{utotal:.2f}",f"{(ctotal*0.01):.2f}")
     return data
 
 def min_to_hourly(data):
@@ -60,9 +60,12 @@ def main(scrape=True):
     usage_std = std_dev(usages)
     usage_mean = sum(usages) / len(usages)
 
-    charge = min_to_hourly(df.select(pl.col("Wholesale Price (Cents/kWh, Gst incl)")).to_series().to_list())
+    charge = min_to_hourly(df.select(pl.col("Wholesale Usage Charge (Cents, Gst incl)")).to_series().to_list())
     charge_std = std_dev(charge)
     charge_mean = sum(charge) / len(charge)
+
+    usage_sum = sum(usages)
+    charge_sum = sum(charge)
 
     #print(f"U: {usage_mean:.2f} ± {usage_std:.2f}")
     #print(f"C: {charge_mean:.2f} ± {charge_std:.2f}")
@@ -83,7 +86,7 @@ def main(scrape=True):
     #print(usages)
     #print(charge)
 
-    formatted = format_data(usages, charge)
+    formatted = format_data(usages, charge, usage_sum, charge_sum)
 
     send_email(
         f"GloBird Data Summary - {date.today()}",
